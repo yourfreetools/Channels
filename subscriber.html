@@ -3,274 +3,463 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Promotion Request</title>
+    <title>YouTube Growth Services</title>
     <style>
         :root {
-            --youtube-red: #FF0000;
-            --youtube-dark-red: #CC0000;
+            --primary-red: #FF0000;
+            --secondary-red: #CC0000;
             --white: #FFFFFF;
-            --light-gray: #F9F9F9;
+            --light-gray: #F5F5F5;
             --dark-gray: #333333;
         }
         
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
             background-color: var(--light-gray);
             color: var(--dark-gray);
             line-height: 1.6;
         }
         
         .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 50px auto;
-            background-color: var(--white);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 30px;
         }
         
         h1 {
-            text-align: center;
-            color: var(--youtube-red);
-            margin-bottom: 30px;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
         
-        .promotion-options {
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .service-cards {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            margin-bottom: 30px;
+            justify-content: center;
+            margin-bottom: 40px;
         }
         
-        .option-card {
-            flex: 1;
-            min-width: 200px;
-            background-color: var(--light-gray);
-            padding: 20px;
+        .card {
+            background-color: var(--white);
             border-radius: 8px;
-            border: 1px solid #ddd;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            transition: transform 0.3s;
+            border-top: 5px solid var(--primary-red);
         }
         
-        .option-card:hover {
+        .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(255,0,0,0.1);
-            border-color: var(--youtube-red);
         }
         
-        .option-card.selected {
-            border: 2px solid var(--youtube-red);
-            background-color: rgba(255,0,0,0.05);
-        }
-        
-        .option-title {
-            font-size: 20px;
-            font-weight: bold;
+        .card h2 {
+            color: var(--primary-red);
             margin-bottom: 15px;
-            color: var(--youtube-red);
-            text-align: center;
+            font-size: 1.5rem;
         }
         
-        .option-range {
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            height: 10px;
-            -webkit-appearance: none;
-            background: #ddd;
-            border-radius: 5px;
-            outline: none;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--youtube-red);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        
-        .value-display {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
-            color: var(--youtube-red);
-        }
-        
-        .channel-info {
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
+        .card p {
             margin-bottom: 20px;
+            color: var(--dark-gray);
         }
         
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        
-        input[type="text"], input[type="url"] {
+        .range-selector {
             width: 100%;
-            padding: 12px;
+            margin: 20px 0;
+        }
+        
+        .range-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--dark-gray);
+        }
+        
+        .range-selector input {
+            width: 100%;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 4px;
             font-size: 16px;
         }
         
-        .submit-btn {
+        .tasks {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tasks h2 {
+            color: var(--primary-red);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+        }
+        
+        .task-item input {
+            margin-right: 15px;
+            transform: scale(1.3);
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .share-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+        
+        .whatsapp {
+            background-color: #25D366;
+        }
+        
+        .facebook {
+            background-color: #1877F2;
+        }
+        
+        .btn {
             display: block;
             width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
             padding: 15px;
-            background-color: var(--youtube-red);
+            background-color: var(--primary-red);
             color: var(--white);
             border: none;
-            border-radius: 5px;
-            font-size: 18px;
+            border-radius: 4px;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .submit-btn:hover {
-            background-color: var(--youtube-dark-red);
-        }
-        
-        .success-message {
-            display: none;
+            transition: background-color 0.3s;
             text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-red);
+        }
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .counter {
+            margin-left: auto;
+            font-weight: bold;
+            color: var(--primary-red);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
             padding: 20px;
-            background-color: #d4edda;
-            color: #155724;
-            border-radius: 5px;
-            margin-top: 20px;
-            border: 1px solid #c3e6cb;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
         }
         
-        .success-icon {
-            font-size: 50px;
-            color: #28a745;
-            margin-bottom: 15px;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <h1>YouTube Free Promotion Request</h1>
-        
-        <div class="promotion-options">
-            <div class="option-card" onclick="selectOption('subs')" id="subs-card">
-                <div class="option-title">Subscribers</div>
-                <div class="option-range">
-                    <input type="range" min="1" max="1000" value="100" class="slider" id="subs-slider">
-                    <div class="value-display"><span id="subs-value">100</span> Subs</div>
-                </div>
-            </div>
-            
-            <div class="option-card" onclick="selectOption('views')" id="views-card">
-                <div class="option-title">Views</div>
-                <div class="option-range">
-                    <input type="range" min="1" max="10000" value="1000" class="slider" id="views-slider">
-                    <div class="value-display"><span id="views-value">1000</span> Views</div>
-                </div>
-            </div>
-            
-            <div class="option-card" onclick="selectOption('watchtime')" id="watchtime-card">
-                <div class="option-title">Watch Time</div>
-                <div class="option-range">
-                    <input type="range" min="1" max="4000" value="500" class="slider" id="watchtime-slider">
-                    <div class="value-display"><span id="watchtime-value">500</span> Hours</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="channel-info">
-            <div class="form-group">
-                <label for="channel-name">YouTube Channel Name</label>
-                <input type="text" id="channel-name" placeholder="Enter your channel name">
-            </div>
-            
-            <div class="form-group">
-                <label for="channel-url">YouTube Channel URL</label>
-                <input type="url" id="channel-url" placeholder="https://www.youtube.com/yourchannel">
-            </div>
-        </div>
-        
-        <button class="submit-btn" onclick="submitRequest()">Request Promotion</button>
-        
-        <div class="success-message" id="success-message">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h2>Request Successful!</h2>
-            <p>Your YouTube promotion request has been received.</p>
-            <p>You should see results within <strong>7 days</strong>.</p>
-            <p>Thank you for using our free promotion service!</p>
-        </div>
-    </div>
-
-    <script>
-        // Update slider values in real-time
-        document.getElementById('subs-slider').addEventListener('input', function() {
-            document.getElementById('subs-value').textContent = this.value;
-        });
-        
-        document.getElementById('views-slider').addEventListener('input', function() {
-            document.getElementById('views-value').textContent = this.value;
-        });
-        
-        document.getElementById('watchtime-slider').addEventListener('input', function() {
-            document.getElementById('watchtime-value').textContent = this.value;
-        });
-        
-        // Select option card
-        function selectOption(type) {
-            document.getElementById('subs-card').classList.remove('selected');
-            document.getElementById('views-card').classList.remove('selected');
-            document.getElementById('watchtime-card').classList.remove('selected');
-            
-            document.getElementById(type + '-card').classList.add('selected');
-        }
-        
-        // Submit request
-        function submitRequest() {
-            const channelName = document.getElementById('channel-name').value;
-            const channelUrl = document.getElementById('channel-url').value;
-            
-            if (!channelName || !channelUrl) {
-                alert('Please fill in all fields');
-                return;
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
             }
             
-            // Show loading state
-            const btn = document.querySelector('.submit-btn');
-            btn.disabled = true;
-            btn.innerHTML = 'Processing...';
+            .subtitle {
+                font-size: 1rem;
+            }
             
-            // Show success message after 2-3 seconds
-            setTimeout(() => {
-                document.getElementById('success-message').style.display = 'block';
-                btn.disabled = false;
-                btn.innerHTML = 'Request Promotion';
-                
-                // Scroll to success message
-                document.getElementById('success-message').scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }, 2500); // 2.5 seconds delay
+            .card {
+                padding: 20px;
+            }
+            
+            .tasks {
+                padding: 20px;
+            }
+            
+            .share-buttons {
+                flex-direction: column;
+            }
         }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>YouTube Growth Services</h1>
+            <p class="subtitle">Boost your channel with our free services</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="service-cards">
+            <div class="card">
+                <h2>Subscribers</h2>
+                <p>Get real subscribers to grow your channel</p>
+                <div class="range-selector">
+                    <label for="subs-range">Number of Subscribers (1-1000)</label>
+                    <input type="number" id="subs-range" min="1" max="1000" value="100" class="service-input" data-service="subscribers">
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Views</h2>
+                <p>Increase your video views and reach</p>
+                <div class="range-selector">
+                    <label for="views-range">Number of Views (1-10000)</label>
+                    <input type="number" id="views-range" min="1" max="10000" value="500" class="service-input" data-service="views">
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Watch Time</h2>
+                <p>Boost your watch time hours</p>
+                <div class="range-selector">
+                    <label for="watchtime-range">Watch Time Hours (1-4000)</label>
+                    <input type="number" id="watchtime-range" min="1" max="4000" value="100" class="service-input" data-service="watchtime">
+                </div>
+            </div>
+        </div>
+        
+        <div class="tasks">
+            <h2>Complete These Tasks to Unlock Your Request</h2>
+            
+            <div class="task-item">
+                <input type="checkbox" id="task1" class="task-checkbox">
+                <label for="task1">Share our website link to 5 WhatsApp groups</label>
+                <span class="counter" id="whatsapp-counter">0/5</span>
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" onclick="shareToWhatsApp()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                        </svg>
+                        Share Now
+                    </button>
+                </div>
+            </div>
+            
+            <div class="task-item">
+                <input type="checkbox" id="task2" class="task-checkbox">
+                <label for="task2">Share our website link to 5 Facebook groups</label>
+                <span class="counter" id="facebook-counter">0/5</span>
+                <div class="share-buttons">
+                    <button class="share-btn facebook" onclick="shareToFacebook()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
+                        </svg>
+                        Share Now
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <button id="request-btn" class="btn" disabled>Request Service</button>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2023 YouTube Growth Services. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgfqSEXwZNLpuNb4qYGrULTHrZ_SJMQI4",
+            authDomain: "channels-c8d13.firebaseapp.com",
+            projectId: "channels-c8d13",
+            storageBucket: "channels-c8d13.appspot.com",
+            messagingSenderId: "704343212635",
+            appId: "1:704343212635:web:ea14e6414c5137cace757e",
+            measurementId: "G-G5FQX9J4ER"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Track user shares
+        let userId = localStorage.getItem('userId');
+        if (!userId) {
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('userId', userId);
+        }
+
+        let userDocRef = db.collection('userShares').doc(userId);
+        let whatsappShares = 0;
+        let facebookShares = 0;
+
+        // Load user's share counts
+        userDocRef.get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                whatsappShares = data.whatsappShares || 0;
+                facebookShares = data.facebookShares || 0;
+                updateCounters();
+                checkTasksCompletion();
+            }
+        });
+
+        function updateCounters() {
+            document.getElementById('whatsapp-counter').textContent = `${whatsappShares}/5`;
+            document.getElementById('facebook-counter').textContent = `${facebookShares}/5`;
+            
+            // Check if tasks are completed
+            document.getElementById('task1').checked = whatsappShares >= 5;
+            document.getElementById('task2').checked = facebookShares >= 5;
+        }
+
+        function checkTasksCompletion() {
+            const allChecked = whatsappShares >= 5 && facebookShares >= 5;
+            requestBtn.disabled = !allChecked;
+        }
+
+        // Social sharing functions
+        function shareToWhatsApp() {
+            const shareUrl = `https://wa.me/?text=${encodeURIComponent(
+                "🚀 Get FREE YouTube Subscribers, Views & Watch Time! Boost your channel instantly at https://youtubefreeservices.pages.dev"
+            )}`;
+            
+            // Track the share
+            whatsappShares++;
+            userDocRef.set({
+                whatsappShares: whatsappShares,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            updateCounters();
+            checkTasksCompletion();
+            
+            // Open share dialog
+            window.open(shareUrl, '_blank');
+        }
+
+        function shareToFacebook() {
+            const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                "https://youtubefreeservices.pages.dev"
+            )}&quote=${encodeURIComponent(
+                "🚀 Get FREE YouTube Subscribers, Views & Watch Time! Boost your channel instantly!"
+            )}`;
+            
+            // Track the share
+            facebookShares++;
+            userDocRef.set({
+                facebookShares: facebookShares,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            updateCounters();
+            checkTasksCompletion();
+            
+            // Open share dialog
+            window.open(shareUrl, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.task-checkbox');
+            const requestBtn = document.getElementById('request-btn');
+            const serviceInputs = document.querySelectorAll('.service-input');
+            
+            let selectedService = null;
+            
+            // Track which service is selected
+            serviceInputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    selectedService = this.dataset.service;
+                    // Reset other inputs
+                    serviceInputs.forEach(i => {
+                        if(i !== this) {
+                            i.value = i.min;
+                        }
+                    });
+                });
+            });
+            
+            // Handle request button click
+            requestBtn.addEventListener('click', function() {
+                if (requestBtn.disabled) return;
+                
+                let amount, serviceType;
+                
+                switch(selectedService) {
+                    case 'subscribers':
+                        amount = document.getElementById('subs-range').value;
+                        serviceType = 'subscribers';
+                        break;
+                    case 'views':
+                        amount = document.getElementById('views-range').value;
+                        serviceType = 'views';
+                        break;
+                    case 'watchtime':
+                        amount = document.getElementById('watchtime-range').value;
+                        serviceType = 'watch time hours';
+                        break;
+                }
+                
+                // Record the request in Firestore
+                userDocRef.collection('requests').add({
+                    service: selectedService,
+                    amount: amount,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'pending'
+                }).then(() => {
+                    alert(`Your request for ${amount} ${serviceType} has been submitted!\n\nWe'll process your request within 24-48 hours.`);
+                    
+                    // Reset form
+                    serviceInputs.forEach(input => input.value = input.min);
+                    requestBtn.disabled = true;
+                    selectedService = null;
+                }).catch(error => {
+                    console.error("Error saving request: ", error);
+                    alert("There was an error submitting your request. Please try again.");
+                });
+            });
+        });
     </script>
 </body>
-</html>
+                    </html>
