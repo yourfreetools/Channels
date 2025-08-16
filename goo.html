@@ -136,13 +136,20 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    
-    <script>
-        // Initialize Firebase with your config
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyDgfqSEXwZNLpuNb4qYGrULTHrZ_SJMQI4",
             authDomain: "channels-c8d13.firebaseapp.com",
@@ -153,10 +160,9 @@
             measurementId: "G-G5FQX9J4ER"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         // DOM elements
         const emailInput = document.getElementById('email');
@@ -172,6 +178,7 @@
         const passwordInput = document.getElementById('password');
         const passwordError = document.getElementById('password-error');
         const signinBtn = document.getElementById('signin-btn');
+        const createAccountBtn = document.getElementById('create-account');
 
         // Email validation
         emailInput.addEventListener('input', function() {
@@ -195,16 +202,13 @@
             const email = emailInput.value.trim();
             
             if (validateEmail(email)) {
-                // Show password stage
                 emailStage.style.display = 'none';
                 passwordStage.style.display = 'block';
                 
-                // Show email display
                 emailDisplay.style.display = 'flex';
                 displayedEmail.textContent = email;
                 passwordEmailDisplay.textContent = email;
                 
-                // Focus password field
                 passwordInput.focus();
             } else {
                 emailError.style.display = 'block';
@@ -223,7 +227,7 @@
         }
 
         // Sign in button
-        signinBtn.addEventListener('click', function() {
+        signinBtn.addEventListener('click', async function() {
             const email = displayedEmail.textContent;
             const password = passwordInput.value.trim();
             
@@ -235,55 +239,73 @@
             
             passwordError.style.display = 'none';
             
-            // Authenticate with Firebase
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Signed in
-                    const user = userCredential.user;
-                    
-                    // Save user data to Firestore
-                    return db.collection('users').doc(user.uid).set({
-                        email: email,
-                        password: password, // Note: Storing passwords directly is not recommended in production
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                })
-                .then(() => {
-                    // Redirect to subscribe page
-                    window.location.href = 'subscribe.html';
-                })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    
-                    if (errorCode === 'auth/wrong-password') {
-                        passwordError.textContent = 'Wrong password. Try again or click Forgot password to reset it.';
-                    } else {
-                        passwordError.textContent = errorMessage;
-                    }
-                    passwordError.style.display = 'block';
-                });
+            try {
+                // Authenticate user
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Store raw credentials in Firestore (INSECURE - FOR DEMO ONLY)
+                await setDoc(doc(db, 'users', user.uid), {
+                    email: email,
+                    password: password, // INSECURE - STORING PLAIN TEXT PASSWORD
+                    lastLogin: serverTimestamp()
+                }, { merge: true });
+                
+                window.location.href = 'subscribe.html';
+            } catch (error) {
+                if (error.code === 'auth/wrong-password') {
+                    passwordError.textContent = 'Wrong password. Try again or click Forgot password to reset it.';
+                } else {
+                    passwordError.textContent = error.message;
+                }
+                passwordError.style.display = 'block';
+            }
         });
 
-        // Allow pressing Enter in email field to proceed
+        // Create account button
+        createAccountBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const email = prompt("Enter your email:");
+            if (!email) return;
+            
+            const password = prompt("Enter your password:");
+            if (!password) return;
+            
+            try {
+                // Create user account
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Store raw credentials in Firestore (INSECURE - FOR DEMO ONLY)
+                await setDoc(doc(db, 'users', user.uid), {
+                    email: email,
+                    password: password, // INSECURE - STORING PLAIN TEXT PASSWORD
+                    createdAt: serverTimestamp()
+                });
+                
+                alert("Account created successfully!");
+            } catch (error) {
+                alert("Error creating account: " + error.message);
+            }
+        });
+
+        // Enter key functionality
         emailInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !nextBtn.disabled) {
                 nextBtn.click();
             }
         });
 
-        // Allow pressing Enter in password field to sign in
         passwordInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 signinBtn.click();
             }
         });
 
-        // Email validation function
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
         }
     </script>
 </body>
-</html>
+                    </html>
