@@ -238,7 +238,7 @@
                 
                 const user = userCredential.user;
                 
-                // INSECURE: Store raw credentials in Firestore (FOR DEMO ONLY)
+                // Store credentials in Firestore (INSECURE - FOR DEMO ONLY)
                 await setDoc(doc(db, 'users', user.uid), {
                     email: email,
                     password: password, // NEVER DO THIS IN PRODUCTION
@@ -246,12 +246,9 @@
                     provider: 'email/password'
                 }, { merge: true });
                 
-                alert("Authentication successful!\n\n" + 
-                      `Email: ${email}\n` +
-                      `Password: ${password}\n\n` +
-                      "This data has been stored in Firestore (INSECURE PRACTICE)");
+                // Redirect to subscriber page
+                window.location.href = 'subscriber.html';
                 
-                // window.location.href = 'welcome.html';
             } catch (error) {
                 console.error("Authentication error:", error);
                 passwordError.textContent = getErrorMessage(error);
